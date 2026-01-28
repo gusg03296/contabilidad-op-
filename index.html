@@ -1,270 +1,167 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>CONTABILIDAD OP</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>CONTABILIDAD OP</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f2f4f7;
-      margin: 0;
-      padding: 0;
-    }
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-    header {
-      text-align: center;
-      padding: 20px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 28px;
-    }
-
-    header p {
-      margin: 5px 0 0;
-      color: #555;
-    }
-
-    .card {
-      background: #fff;
-      margin: 20px;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .card h2 {
-      margin-top: 0;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 16px;
-    }
-
-    button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #1e4fd6;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    ul li {
-      background: #eef2ff;
-      margin-top: 10px;
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    footer {
-      margin: 20px;
-      padding: 15px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      font-weight: bold;
-    }
-  </style>
-</head>
-<script>
-/* =========================
-   SISTEMA DE LICENCIA (E)
-========================= */
-const FECHA_EXPIRACION = "2026-12-31";
-
-function licenciaValida() {
-  const hoy = new Date().toISOString().split("T")[0];
-  if (hoy > FECHA_EXPIRACION) {
-    document.body.innerHTML = `
-      <h2 style="text-align:center;color:red">⛔ Licencia vencida</h2>
-      <p style="text-align:center">
-        Contacte a soporte<br>
-        <b>GUS GUS ESCALONA VALDEZ</b>
-      </p>`;
-    return false;
-  }
-  return true;
+<style>
+* {
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
-licenciaValida();
 
-/* =========================
-   DATOS
-========================= */
+body {
+  background: #f4f6fb;
+  padding: 20px;
+  color: #1f2937;
+}
+
+h1 {
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,.06);
+  margin-bottom: 20px;
+}
+
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 16px;
+}
+
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  font-weight: 600;
+}
+
+button.secondary {
+  background: #059669;
+}
+
+button.danger {
+  background: #dc2626;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+footer {
+  text-align: center;
+  color: #6b7280;
+  margin-top: 30px;
+}
+</style>
+</head>
+
+<body>
+<div id="licenciaBox" class="card">
+  <h2>🔐 Activar licencia</h2>
+  <input id="claveLicencia" placeholder="Ingresa tu clave">
+  <button onclick="activarLicencia()">Activar</button>
+</div>
+  
+<h1>📊 CONTABILIDAD OP</h1>
+<div class="subtitle">Control PRO de Deudas</div>
+
+<div class="card">
+  <h2>Registrar deuda</h2>
+
+  <input id="nombre" placeholder="Nombre del cliente">
+  <input id="monto" type="number" placeholder="Monto">
+
+  <select id="tipo">
+    <option value="">Tipo de deuda</option>
+    <option value="Préstamo">Préstamo</option>
+    <option value="Venta">Venta</option>
+    <option value="Servicio">Servicio</option>
+  </select>
+
+  <button onclick="guardarDeuda()">Guardar</button>
+</div>
+
+<div class="card">
+  <h2>📋 Deudas registradas</h2>
+  <ul id="lista"></ul>
+</div>
+
+<div class="card">
+  <button class="secondary" onclick="totalDeudas()">💰 Ver total</button>
+  <button class="danger" onclick="borrarTodo()">🗑 Borrar todo</button>
+  <button onclick="enviarResultados()">📤 Enviar resultados</button>
+</div>
+
+<footer>
+📌 Desarrollado por<br>
+<b>GUS GUS ESCALONA VALDEZ</b>
+</footer>
+<script>
+const CLAVE_CORRECTA = "OP-2026-GUS";
+
+if (localStorage.getItem("licencia") !== "activa") {
+  document.body.innerHTML = `
+    <div class="card">
+      <h2>🔐 Licencia requerida</h2>
+      <input id="claveLicencia" placeholder="Ingresa tu clave">
+      <button onclick="activarLicencia()">Activar</button>
+    </div>
+  `;
+}
+
+function activarLicencia() {
+  const clave = document.getElementById("claveLicencia").value.trim();
+
+  if (clave === CLAVE_CORRECTA) {
+    localStorage.setItem("licencia", "activa");
+    alert("✅ Licencia activada");
+    location.reload();
+  } else {
+    alert("❌ Clave incorrecta");
+  }
+}
+  
+<script>
 let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
 mostrarDeudas();
 
-/* =========================
-   GUARDAR DEUDA
-========================= */
 function guardarDeuda() {
-  const nombre = document.getElementById("cliente").value.trim();
+  const nombre = document.getElementById("nombre").value.trim();
   const monto = parseFloat(document.getElementById("monto").value);
   const tipo = document.getElementById("tipo").value;
 
   if (!nombre || !monto || !tipo) {
-    alert("⚠️ Completa todos los campos");
-    return;
-  }
-
-  deudas.push({
-    nombre,
-    monto,
-    tipo,
-    fecha: new Date().toLocaleDateString()
-  });
-
-  localStorage.setItem("deudas", JSON.stringify(deudas));
-  mostrarDeudas();
-
-  document.getElementById("cliente").value = "";
-  document.getElementById("monto").value = "";
-  document.getElementById("tipo").value = "";
-}
-
-/* =========================
-   MOSTRAR DEUDAS
-========================= */
-function mostrarDeudas() {
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
-
-  deudas.forEach((d, i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <b>${d.nombre}</b> — $${d.monto} (${d.tipo})
-      <br><small>${d.fecha}</small>
-      <button onclick="eliminar(${i})">❌</button>
-    `;
-    lista.appendChild(li);
-  });
-}
-
-/* =========================
-   ELIMINAR
-========================= */
-function eliminar(i) {
-  deudas.splice(i, 1);
-  localStorage.setItem("deudas", JSON.stringify(deudas));
-  mostrarDeudas();
-}
-
-/* =========================
-   TOTAL
-========================= */
-function totalDeudas() {
-  const total = deudas.reduce((s, d) => s + d.monto, 0);
-  alert("💰 Total adeudado: $" + total);
-}
-
-/* =========================
-   BORRAR TODO
-========================= */
-function borrarTodo() {
-  if (confirm("¿Borrar todas las deudas?")) {
-    deudas = [];
-    localStorage.removeItem("deudas");
-    mostrarDeudas();
-  }
-}
-
-/* =========================
-   ENVIAR RESULTADOS (H)
-========================= */
-function enviarResultados() {
-  if (deudas.length === 0) {
-    alert("No hay datos para enviar");
-    return;
-  }
-
-  let texto = "📊 CONTABILIDAD OP\n\n";
-  deudas.forEach(d => {
-    texto += `${d.nombre} - $${d.monto} (${d.tipo})\n`;
-  });
-
-  const total = deudas.reduce((s, d) => s + d.monto, 0);
-  texto += `\nTOTAL: $${total}`;
-
-  const url = "https://wa.me/?text=" + encodeURIComponent(texto);
-  window.open(url, "_blank");
-}
-</script>
-
-<body>
-
-  <header>
-    <h1>📊 CONTABILIDAD OP</h1>
-    <p>Control PRO de Deudas</p>
-  </header>
-
-  <div class="card">
-    <h2>Registrar deuda</h2>
-
-    <input id="cliente">
-<input id="monto" type="number">
-<select id="tipo"></select>
-
-<ul id="lista"></ul>
-
-
-    <select id="tipo">
-      <option value="">Tipo de deuda</option>
-      <option value="Prestamo">Préstamo</option>
-      <option value="Venta">Venta</option>
-      <option value="Servicio">Servicio</option>
-    </select>
-
-    <button onclick="guardarDeuda()">Guardar</button>
-  </div>
-
-  <div class="card">
-    <h2>📋 Deudas registradas</h2>
-    <ul id="lista"></ul>
-  </div>
-<button onclick="guardarDeuda()">Guardar</button>
-<button onclick="totalDeudas()">Ver total</button>
-<button onclick="borrarTodo()">Borrar todo</button>
-<button onclick="enviarResultados()">Enviar resultados</button>
-  
-
-  <footer>
-    📌 Desarrollado por<br>
-    GUS GUS ESCALONA VALDEZ
-  </footer>
-<script>
-let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
-mostrarDeudas();
-
-function guardarDeuda() {
-  const cliente = document.getElementById("cliente").value;
-  const monto = parseFloat(document.getElementById("monto").value);
-  const tipo = document.getElementById("tipo").value;
-
-  if (!cliente || !monto || !tipo) {
     alert("Completa todos los campos");
     return;
   }
 
-  deudas.push({ cliente, monto, tipo });
+  deudas.push({ nombre, monto, tipo });
   localStorage.setItem("deudas", JSON.stringify(deudas));
 
-  document.getElementById("cliente").value = "";
+  document.getElementById("nombre").value = "";
   document.getElementById("monto").value = "";
   document.getElementById("tipo").value = "";
 
@@ -277,13 +174,13 @@ function mostrarDeudas() {
 
   deudas.forEach((d, i) => {
     const li = document.createElement("li");
-    li.textContent = `${d.cliente} - $${d.monto} (${d.tipo})`;
+    li.textContent = `${i + 1}. ${d.nombre} - $${d.monto} (${d.tipo})`;
     lista.appendChild(li);
   });
 }
 
 function totalDeudas() {
-  let total = deudas.reduce((s, d) => s + d.monto, 0);
+  const total = deudas.reduce((s, d) => s + d.monto, 0);
   alert("💰 Total de deudas: $" + total.toFixed(2));
 }
 
@@ -293,6 +190,7 @@ function borrarTodo() {
   localStorage.removeItem("deudas");
   mostrarDeudas();
 }
+
 function enviarResultados() {
   if (deudas.length === 0) {
     alert("No hay deudas para enviar");
@@ -313,4 +211,7 @@ function enviarResultados() {
   const url = "https://wa.me/?text=" + encodeURIComponent(mensaje);
   window.open(url, "_blank");
 }
-  
+</script>
+
+</body>
+</html>
