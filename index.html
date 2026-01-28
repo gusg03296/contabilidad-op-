@@ -83,6 +83,128 @@
     }
   </style>
 </head>
+<script>
+/* =========================
+   SISTEMA DE LICENCIA (E)
+========================= */
+const FECHA_EXPIRACION = "2026-12-31";
+
+function licenciaValida() {
+  const hoy = new Date().toISOString().split("T")[0];
+  if (hoy > FECHA_EXPIRACION) {
+    document.body.innerHTML = `
+      <h2 style="text-align:center;color:red">⛔ Licencia vencida</h2>
+      <p style="text-align:center">
+        Contacte a soporte<br>
+        <b>GUS GUS ESCALONA VALDEZ</b>
+      </p>`;
+    return false;
+  }
+  return true;
+}
+licenciaValida();
+
+/* =========================
+   DATOS
+========================= */
+let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
+mostrarDeudas();
+
+/* =========================
+   GUARDAR DEUDA
+========================= */
+function guardarDeuda() {
+  const nombre = document.getElementById("cliente").value.trim();
+  const monto = parseFloat(document.getElementById("monto").value);
+  const tipo = document.getElementById("tipo").value;
+
+  if (!nombre || !monto || !tipo) {
+    alert("⚠️ Completa todos los campos");
+    return;
+  }
+
+  deudas.push({
+    nombre,
+    monto,
+    tipo,
+    fecha: new Date().toLocaleDateString()
+  });
+
+  localStorage.setItem("deudas", JSON.stringify(deudas));
+  mostrarDeudas();
+
+  document.getElementById("cliente").value = "";
+  document.getElementById("monto").value = "";
+  document.getElementById("tipo").value = "";
+}
+
+/* =========================
+   MOSTRAR DEUDAS
+========================= */
+function mostrarDeudas() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  deudas.forEach((d, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <b>${d.nombre}</b> — $${d.monto} (${d.tipo})
+      <br><small>${d.fecha}</small>
+      <button onclick="eliminar(${i})">❌</button>
+    `;
+    lista.appendChild(li);
+  });
+}
+
+/* =========================
+   ELIMINAR
+========================= */
+function eliminar(i) {
+  deudas.splice(i, 1);
+  localStorage.setItem("deudas", JSON.stringify(deudas));
+  mostrarDeudas();
+}
+
+/* =========================
+   TOTAL
+========================= */
+function totalDeudas() {
+  const total = deudas.reduce((s, d) => s + d.monto, 0);
+  alert("💰 Total adeudado: $" + total);
+}
+
+/* =========================
+   BORRAR TODO
+========================= */
+function borrarTodo() {
+  if (confirm("¿Borrar todas las deudas?")) {
+    deudas = [];
+    localStorage.removeItem("deudas");
+    mostrarDeudas();
+  }
+}
+
+/* =========================
+   ENVIAR RESULTADOS (H)
+========================= */
+function enviarResultados() {
+  if (deudas.length === 0) {
+    alert("No hay datos para enviar");
+    return;
+  }
+
+  let texto = "📊 CONTABILIDAD OP\n\n";
+  deudas.forEach(d => {
+    texto += `${d.nombre} - $${d.monto} (${d.tipo})\n`;
+  });
+
+  const total = deudas.reduce((s, d) => s + d.monto, 0);
+  texto += `\nTOTAL: $${total}`;
+
+  const url = "https://wa.me/?text=" + encodeURIComponent(texto);
+  window.open(url, "_blank");
+}
+</script>
 
 <body>
 
@@ -94,8 +216,12 @@
   <div class="card">
     <h2>Registrar deuda</h2>
 
-    <input id="cliente" placeholder="Nombre del cliente">
-    <input id="monto" type="number" placeholder="Monto">
+    <input id="cliente">
+<input id="monto" type="number">
+<select id="tipo"></select>
+
+<ul id="lista"></ul>
+
 
     <select id="tipo">
       <option value="">Tipo de deuda</option>
@@ -111,9 +237,11 @@
     <h2>📋 Deudas registradas</h2>
     <ul id="lista"></ul>
   </div>
-<button onclick="totalDeudas()">💰 Ver total</button>
-<button onclick="borrarTodo()">🗑️ Borrar todo</button>
-<button onclick="enviarResultados()">📤 Enviar resultados</button>
+<button onclick="guardarDeuda()">Guardar</button>
+<button onclick="totalDeudas()">Ver total</button>
+<button onclick="borrarTodo()">Borrar todo</button>
+<button onclick="enviarResultados()">Enviar resultados</button>
+  
 
   <footer>
     📌 Desarrollado por<br>
@@ -165,7 +293,6 @@ function borrarTodo() {
   localStorage.removeItem("deudas");
   mostrarDeudas();
 }
-
 function enviarResultados() {
   if (deudas.length === 0) {
     alert("No hay deudas para enviar");
@@ -176,7 +303,7 @@ function enviarResultados() {
   let total = 0;
 
   deudas.forEach((d, i) => {
-    mensaje += `${i + 1}. ${d.cliente} - $${d.monto} (${d.tipo})\n`;
+    mensaje += `${i + 1}. ${d.nombre} - $${d.monto} (${d.tipo})\n`;
     total += d.monto;
   });
 
@@ -186,6 +313,4 @@ function enviarResultados() {
   const url = "https://wa.me/?text=" + encodeURIComponent(mensaje);
   window.open(url, "_blank");
 }
-</script>
-
   
