@@ -4,56 +4,163 @@
   <meta charset="UTF-8">
   <title>CONTABILIDAD OP</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f4f6f8;
+      background: #f2f4f7;
       margin: 0;
+      padding: 0;
+    }
+
+    header {
+      text-align: center;
       padding: 20px;
     }
-    h1 {
-      color: #1f2937;
-      text-align: center;
+
+    header h1 {
+      margin: 0;
+      font-size: 28px;
     }
+
+    header p {
+      margin: 5px 0 0;
+      color: #555;
+    }
+
     .card {
-      background: white;
-      padding: 15px;
-      margin: 15px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background: #fff;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    input, button {
+
+    .card h2 {
+      margin-top: 0;
+    }
+
+    input, select, button {
       width: 100%;
-      padding: 10px;
-      margin-top: 8px;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
       font-size: 16px;
     }
+
     button {
       background: #2563eb;
       color: white;
       border: none;
-      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1e4fd6;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      background: #eef2ff;
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    footer {
+      margin: 20px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      font-weight: bold;
     }
   </style>
 </head>
+
 <body>
 
-<h1>📊 CONTABILIDAD OP</h1>
-<p style="text-align:center;">Control PRO de Deudas</p>
+  <header>
+    <h1>📊 CONTABILIDAD OP</h1>
+    <p>Control PRO de Deudas</p>
+  </header>
 
-<div class="card">
-  <h3>Registrar deuda</h3>
-  <input type="text" placeholder="Nombre del cliente">
-  <input type="number" placeholder="Monto">
-  <input type="date">
-  <button onclick="guardarDeuda()">Guardar</button>
+  <div class="card">
+    <h2>Registrar deuda</h2>
 
-</div>
+    <input id="cliente" placeholder="Nombre del cliente">
+    <input id="monto" type="number" placeholder="Monto">
 
-<div class="card">
-  <h3>📌 Desarrollado por</h3>
-  <p><b>GUS GUS ESCALONA VALDEZ</b></p>
-</div>
+    <select id="tipo">
+      <option value="">Tipo de deuda</option>
+      <option value="Prestamo">Préstamo</option>
+      <option value="Venta">Venta</option>
+      <option value="Servicio">Servicio</option>
+    </select>
+
+    <button onclick="guardarDeuda()">Guardar</button>
+  </div>
+
+  <div class="card">
+    <h2>📋 Deudas registradas</h2>
+    <ul id="lista"></ul>
+  </div>
+
+  <footer>
+    📌 Desarrollado por<br>
+    GUS GUS ESCALONA VALDEZ
+  </footer>
+
+  <script>
+    let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
+    mostrarDeudas();
+
+    function guardarDeuda() {
+      const cliente = document.getElementById("cliente").value;
+      const monto = document.getElementById("monto").value;
+      const tipo = document.getElementById("tipo").value;
+
+      if (cliente === "" || monto === "" || tipo === "") {
+        alert("Completa todos los campos");
+        return;
+      }
+
+      const deuda = {
+        cliente,
+        monto,
+        tipo
+      };
+
+      deudas.push(deuda);
+      localStorage.setItem("deudas", JSON.stringify(deudas));
+
+      document.getElementById("cliente").value = "";
+      document.getElementById("monto").value = "";
+      document.getElementById("tipo").value = "";
+
+      mostrarDeudas();
+    }
+
+    function mostrarDeudas() {
+      const lista = document.getElementById("lista");
+      lista.innerHTML = "";
+
+      deudas.forEach((d, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+          <strong>${d.cliente}</strong><br>
+          $${d.monto} — ${d.tipo}
+        `;
+        lista.appendChild(li);
+      });
+    }
+  </script>
 
 </body>
 </html>
