@@ -216,7 +216,42 @@ function activarLicencia() {
   }
 }
 </script>
+<script>
+let licenciaActiva = localStorage.getItem("licenciaPRO") === "true";
 
-</div>
+function activarLicencia() {
+  const clave = document.getElementById("licencia").value.trim();
+  const estado = document.getElementById("estadoLicencia");
+
+  // CLAVE PRO (puedes cambiarla)
+  if (clave === "GUS-PRO-2025") {
+    licenciaActiva = true;
+    localStorage.setItem("licenciaPRO", "true");
+    estado.innerHTML = "✅ Licencia PRO activada";
+    estado.style.color = "green";
+    aplicarModoPro();
+  } else {
+    estado.innerHTML = "❌ Licencia inválida";
+    estado.style.color = "red";
+  }
+}
+
+function aplicarModoPro() {
+  const btnEnviar = document.getElementById("btnEnviar");
+  if (!btnEnviar) return;
+
+  if (licenciaActiva) {
+    btnEnviar.classList.remove("bloqueado");
+    btnEnviar.disabled = false;
+  } else {
+    btnEnviar.classList.add("bloqueado");
+    btnEnviar.disabled = true;
+  }
+}
+
+window.onload = aplicarModoPro;
+</script>
+
+</driv>
 </body>
 </html>
