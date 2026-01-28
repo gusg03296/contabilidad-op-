@@ -79,6 +79,16 @@ footer {
 </head>
 
 <body>
+<div id="licenciaBox" class="card">
+  <h2>🔐 Activar licencia</h2>
+  <input id="claveLicencia" placeholder="Ingresa tu clave">
+  <button onclick="activarLicencia()">Activar</button>
+</div>
+
+<div id="app" style="display:none;">
+  <!-- AQUÍ VA TODA TU APP -->
+  <h1>Mi aplicación</h1>
+</div>
 
 <h1>📊 CONTABILIDAD OP</h1>
 <div class="subtitle">Control PRO de Deudas</div>
@@ -183,127 +193,29 @@ function enviarResultados() {
   window.open(url, "_blank");
 }
 </script>
-/* =========================
-   SISTEMA DE LICENCIA (E)
-========================= */
-const FECHA_EXPIRACION = "2026-12-31";
+  <script>
+const CLAVE_CORRECTA = "OP-2026-GUS";
 
-function licenciaValida() {
-  const hoy = new Date().toISOString().split("T")[0];
-  if (hoy > FECHA_EXPIRACION) {
-    document.body.innerHTML = `
-      <h2 style="text-align:center;color:red">⛔ Licencia vencida</h2>
-      <p style="text-align:center">
-        Contacte a soporte<br>
-        <b>GUS GUS ESCALONA VALDEZ</b>
-      </p>`;
-    return false;
+window.onload = () => {
+  if (localStorage.getItem("licencia") === "activa") {
+    document.getElementById("licenciaBox").style.display = "none";
+    document.getElementById("app").style.display = "block";
   }
-  return true;
-}
-licenciaValida();
+};
 
-/* =========================
-   DATOS
-========================= */
-let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
-mostrarDeudas();
+function activarLicencia() {
+  const clave = document.getElementById("claveLicencia").value.trim();
 
-/* =========================
-   GUARDAR DEUDA
-========================= */
-function guardarDeuda() {
-  const nombre = document.getElementById("cliente").value.trim();
-  const monto = parseFloat(document.getElementById("monto").value);
-  const tipo = document.getElementById("tipo").value;
-
-  if (!nombre || !monto || !tipo) {
-    alert("⚠️ Completa todos los campos");
-    return;
+  if (clave === CLAVE_CORRECTA) {
+    localStorage.setItem("licencia", "activa");
+    alert("✅ Licencia activada");
+    document.getElementById("licenciaBox").style.display = "none";
+    document.getElementById("app").style.display = "block";
+  } else {
+    alert("❌ Clave incorrecta");
   }
-
-  deudas.push({
-    nombre,
-    monto,
-    tipo,
-    fecha: new Date().toLocaleDateString()
-  });
-
-  localStorage.setItem("deudas", JSON.stringify(deudas));
-  mostrarDeudas();
-
-  document.getElementById("cliente").value = "";
-  document.getElementById("monto").value = "";
-  document.getElementById("tipo").value = "";
-}
-
-/* =========================
-   MOSTRAR DEUDAS
-========================= */
-function mostrarDeudas() {
-  const lista = document.getElementById("lista");
-  lista.innerHTML = "";
-
-  deudas.forEach((d, i) => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <b>${d.nombre}</b> — $${d.monto} (${d.tipo})
-      <br><small>${d.fecha}</small>
-      <button onclick="eliminar(${i})">❌</button>
-    `;
-    lista.appendChild(li);
-  });
-}
-
-/* =========================
-   ELIMINAR
-========================= */
-function eliminar(i) {
-  deudas.splice(i, 1);
-  localStorage.setItem("deudas", JSON.stringify(deudas));
-  mostrarDeudas();
-}
-
-/* =========================
-   TOTAL
-========================= */
-function totalDeudas() {
-  const total = deudas.reduce((s, d) => s + d.monto, 0);
-  alert("💰 Total adeudado: $" + total);
-}
-
-/* =========================
-   BORRAR TODO
-========================= */
-function borrarTodo() {
-  if (confirm("¿Borrar todas las deudas?")) {
-    deudas = [];
-    localStorage.removeItem("deudas");
-    mostrarDeudas();
-  }
-}
-
-/* =========================
-   ENVIAR RESULTADOS (H)
-========================= */
-function enviarResultados() {
-  if (deudas.length === 0) {
-    alert("No hay datos para enviar");
-    return;
-  }
-
-  let texto = "📊 CONTABILIDAD OP\n\n";
-  deudas.forEach(d => {
-    texto += `${d.nombre} - $${d.monto} (${d.tipo})\n`;
-  });
-
-  const total = deudas.reduce((s, d) => s + d.monto, 0);
-  texto += `\nTOTAL: $${total}`;
-
-  const url = "https://wa.me/?text=" + encodeURIComponent(texto);
-  window.open(url, "_blank");
 }
 </script>
-  
+
 </body>
 </html>
