@@ -111,56 +111,81 @@
     <h2>📋 Deudas registradas</h2>
     <ul id="lista"></ul>
   </div>
+<button onclick="totalDeudas()">💰 Ver total</button>
+<button onclick="borrarTodo()">🗑️ Borrar todo</button>
+<button onclick="enviarResultados()">📤 Enviar resultados</button>
 
   <footer>
     📌 Desarrollado por<br>
     GUS GUS ESCALONA VALDEZ
   </footer>
+<script>
+let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
+mostrarDeudas();
 
-  <script>
-    let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
-    mostrarDeudas();
+function guardarDeuda() {
+  const cliente = document.getElementById("cliente").value;
+  const monto = parseFloat(document.getElementById("monto").value);
+  const tipo = document.getElementById("tipo").value;
 
-    function guardarDeuda() {
-      const cliente = document.getElementById("cliente").value;
-      const monto = document.getElementById("monto").value;
-      const tipo = document.getElementById("tipo").value;
+  if (!cliente || !monto || !tipo) {
+    alert("Completa todos los campos");
+    return;
+  }
 
-      if (cliente === "" || monto === "" || tipo === "") {
-        alert("Completa todos los campos");
-        return;
-      }
+  deudas.push({ cliente, monto, tipo });
+  localStorage.setItem("deudas", JSON.stringify(deudas));
 
-      const deuda = {
-        cliente,
-        monto,
-        tipo
-      };
+  document.getElementById("cliente").value = "";
+  document.getElementById("monto").value = "";
+  document.getElementById("tipo").value = "";
 
-      deudas.push(deuda);
-      localStorage.setItem("deudas", JSON.stringify(deudas));
+  mostrarDeudas();
+}
 
-      document.getElementById("cliente").value = "";
-      document.getElementById("monto").value = "";
-      document.getElementById("tipo").value = "";
+function mostrarDeudas() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
 
-      mostrarDeudas();
-    }
+  deudas.forEach((d, i) => {
+    const li = document.createElement("li");
+    li.textContent = `${d.cliente} - $${d.monto} (${d.tipo})`;
+    lista.appendChild(li);
+  });
+}
 
-    function mostrarDeudas() {
-      const lista = document.getElementById("lista");
-      lista.innerHTML = "";
+function totalDeudas() {
+  let total = deudas.reduce((s, d) => s + d.monto, 0);
+  alert("💰 Total de deudas: $" + total.toFixed(2));
+}
 
-      deudas.forEach((d, i) => {
-        const li = document.createElement("li");
-        li.innerHTML = `
-          <strong>${d.cliente}</strong><br>
-          $${d.monto} — ${d.tipo}
-        `;
-        lista.appendChild(li);
-      });
-    }
-  </script>
+function borrarTodo() {
+  if (!confirm("¿Seguro que deseas borrar todo?")) return;
+  deudas = [];
+  localStorage.removeItem("deudas");
+  mostrarDeudas();
+}
 
-</body>
-</html>
+function enviarResultados() {
+  if (deudas.length === 0) {
+    alert("No hay deudas para enviar");
+    return;
+  }
+
+  let mensaje = "📊 CONTABILIDAD OP\n\n";
+  let total = 0;
+
+  deudas.forEach((d, i) => {
+    mensaje += `${i + 1}. ${d.cliente} - $${d.monto} (${d.tipo})\n`;
+    total += d.monto;
+  });
+
+  mensaje += `\n💰 TOTAL: $${total.toFixed(2)}`;
+  mensaje += `\n\n📌 GUS GUS ESCALONA VALDEZ`;
+
+  const url = "https://wa.me/?text=" + encodeURIComponent(mensaje);
+  window.open(url, "_blank");
+}
+</script>
+
+  
