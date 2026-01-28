@@ -1,29 +1,88 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("deudaForm");
-  const lista = document.getElementById("listaDeudas");
+<script>
+/* ============================
+   CONTABILIDAD OP - SCRIPT
+   ============================ */
 
-  let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
+/* Cargar deudas guardadas */
+let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
+render();
 
-  function render() {
-    lista.innerHTML = "";
-    deudas.forEach((d, i) => {
-      const li = document.createElement("li");
-      li.textContent = `${d.nombre} - $${d.monto}`;
-      lista.appendChild(li);
-    });
+/* Guardar nueva deuda */
+function guardarDeuda() {
+  const cliente = document.getElementById("cliente").value.trim();
+  const monto = document.getElementById("monto").value;
+  const tipo = document.getElementById("tipo").value;
+
+  if (!cliente || !monto || !tipo) {
+    alert("Completa todos los campos");
+    return;
   }
 
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-    const nombre = document.getElementById("nombre").value;
-    const monto = document.getElementById("monto").value;
+  const deuda = {
+    cliente: cliente,
+    monto: parseFloat(monto),
+    tipo: tipo,
+    fecha: new Date().toLocaleDateString("es-MX")
+  };
 
-    deudas.push({ nombre, monto });
-    localStorage.setItem("deudas", JSON.stringify(deudas));
+  deudas.push(deuda);
+  localStorage.setItem("deudas", JSON.stringify(deudas));
 
-    form.reset();
-    render();
-  });
-
+  limpiarFormulario();
   render();
-});
+}
+
+/* Mostrar deudas */
+function render() {
+  const lista = document.getElementById("lista");
+  lista.innerHTML = "";
+
+  if (deudas.length === 0) {
+    lista.innerHTML = "<li>No hay deudas registradas</li>";
+    return;
+  }
+
+  deudas.forEach((d, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${d.cliente}</strong><br>
+      💰 $${d.monto.toFixed(2)}<br>
+      📌 ${d.tipo}<br>
+      📅 ${d.fecha}
+      <br><br>
+      <button onclick="eliminarDeuda(${i})">❌ Eliminar</button>
+    `;
+    lista.appendChild(li);
+  });
+}
+
+/* Eliminar deuda */
+function eliminarDeuda(index) {
+  if (!confirm("¿Eliminar esta deuda?")) return;
+  deudas.splice(index, 1);
+  localStorage.setItem("deudas", JSON.stringify(deudas));
+  render();
+}
+
+/* Limpiar formulario */
+function limpiarFormulario() {
+  document.getElementById("cliente").value = "";
+  document.getElementById("monto").value = "";
+  document.getElementById("tipo").value = "";
+}
+
+/* Borrar TODO (modo admin) */
+function borrarTodo() {
+  if (!confirm("¿Borrar TODAS las deudas?")) return;
+  localStorage.removeItem("deudas");
+  deudas = [];
+  render();
+}
+
+/* Calcular total */
+function totalDeudas() {
+  let total = 0;
+  deudas.forEach(d => total += d.monto);
+  alert("Total adeudado: $" + total.toFixed(2));
+}
+</script>
