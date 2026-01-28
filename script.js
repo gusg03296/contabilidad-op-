@@ -1,11 +1,29 @@
-function guardarDeuda() {
-  const nombre = document.getElementById("cliente").value;
-  const monto = document.getElementById("monto").value;
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("deudaForm");
+  const lista = document.getElementById("listaDeudas");
 
-  if (nombre === "" || monto === "") {
-    alert("Completa todos los campos");
-    return;
+  let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
+
+  function render() {
+    lista.innerHTML = "";
+    deudas.forEach((d, i) => {
+      const li = document.createElement("li");
+      li.textContent = `${d.nombre} - $${d.monto}`;
+      lista.appendChild(li);
+    });
   }
 
-  alert("Deuda guardada correctamente ✅");
-}
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const nombre = document.getElementById("nombre").value;
+    const monto = document.getElementById("monto").value;
+
+    deudas.push({ nombre, monto });
+    localStorage.setItem("deudas", JSON.stringify(deudas));
+
+    form.reset();
+    render();
+  });
+
+  render();
+});
