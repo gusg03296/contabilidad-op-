@@ -9,4 +9,3 @@ function guardarDeuda() {
 
   alert("Deuda guardada correctamente ✅");
 }
-<script src="script.js"></script>
