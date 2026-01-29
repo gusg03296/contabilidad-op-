@@ -154,28 +154,52 @@ function activarAcceso() {
   }
 }
 
+<script>
 // =====================
-// 🚀 LICENCIA PRO
+// 🔐 LICENCIA CON FECHA
 // =====================
+const CLAVE_PRO = "GUS-PRO-2026";
+
+// Activar licencia PRO por X días
 function activarPRO() {
   const clave = prompt("Ingresa tu licencia PRO");
 
   if (clave === CLAVE_PRO) {
-    localStorage.setItem("proOK", "true");
+    const dias = 30; // 👈 AQUÍ CAMBIAS: 30, 365, etc.
+    const hoy = new Date();
+    hoy.setDate(hoy.getDate() + dias);
+
+    localStorage.setItem("proExpira", hoy.toISOString());
+    alert("✅ Licencia PRO activa hasta:\n" + hoy.toLocaleDateString());
+
     aplicarModoPro();
-    alert("✅ Licencia PRO activada");
   } else {
     alert("❌ Licencia PRO inválida");
   }
 }
 
+// Verificar si sigue vigente
+function licenciaProActiva() {
+  const expira = localStorage.getItem("proExpira");
+  if (!expira) return false;
+
+  return new Date(expira) > new Date();
+}
+
+// Aplicar bloqueo / desbloqueo
 function aplicarModoPro() {
   const btn = document.getElementById("btnEnviar");
-  if (localStorage.getItem("proOK") === "true") {
+  if (!btn) return;
+
+  if (licenciaProActiva()) {
     btn.disabled = false;
     btn.classList.remove("bloqueado");
+  } else {
+    btn.disabled = true;
+    btn.classList.add("bloqueado");
   }
 }
+</script>
 
 // =====================
 // 📊 CONTABILIDAD
