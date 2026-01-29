@@ -7,59 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-.pro-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.85);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
-
-.pro-card {
-  background: #111;
-  color: #fff;
-  padding: 25px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 380px;
-  text-align: center;
-  box-shadow: 0 0 20px #7a00ff;
-}
-
-.pro-card h2 {
-  color: #b366ff;
-}
-
-.pro-card input {
-  width: 100%;
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 6px;
-  border: none;
-}
-
-.pro-card button {
-  width: 100%;
-  padding: 12px;
-  background: #7a00ff;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-.pro-card a {
-  color: #00ffcc;
-  text-decoration: none;
-  display: block;
-  margin-top: 10px;
-}
-  
 * {
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
@@ -113,6 +60,10 @@ button.danger {
   background: #dc2626;
 }
 
+button.bloqueado {
+  opacity: 0.4;
+}
+
 ul {
   list-style: none;
   padding: 0;
@@ -132,48 +83,22 @@ footer {
 </head>
 
 <body>
-  <div id="pantallaPro" class="pro-overlay">
-  <div class="pro-card">
-    <h2>🚀 Versión PRO</h2>
-    <p>Esta función es exclusiva para usuarios PRO</p>
 
-    <ul>
-      <li>✔ Control profesional de deudas</li>
-      <li>✔ Envío de resultados</li>
-      <li>✔ Historial ilimitado</li>
-      <li>✔ Sin anuncios</li>
-    </ul>
-
-    <input type="text" id="licencia" placeholder="Ingresa tu licencia PRO">
-    <button onclick="activarLicencia()">🔓 Activar licencia</button>
-
-    <p id="estadoLicencia"></p>
-
-    <hr>
-
-    <a href="https://wa.me/5210000000000" target="_blank">
-      💬 Comprar licencia por WhatsApp
-    </a>
-  </div>
-</div>
-
+<!-- 🔐 BLOQUEO DE ACCESO -->
 <div id="licenciaBox" class="card">
-  <h2>🔐 Activar licencia</h2>
+  <h2>🔐 Activar acceso</h2>
   <input id="claveLicencia" placeholder="Ingresa tu clave">
-  <button onclick="activarLicencia()">Activar</button>
+  <button onclick="activarAcceso()">Entrar</button>
 </div>
 
+<!-- 📊 APP COMPLETA -->
 <div id="app" style="display:none;">
-  <!-- AQUÍ VA TODA TU APP -->
-  <h1>Mi aplicación</h1>
-</div>
 
 <h1>📊 CONTABILIDAD OP</h1>
 <div class="subtitle">Control PRO de Deudas</div>
 
 <div class="card">
   <h2>Registrar deuda</h2>
-
   <input id="nombre" placeholder="Nombre del cliente">
   <input id="monto" type="number" placeholder="Monto">
 
@@ -195,10 +120,9 @@ footer {
 <div class="card">
   <button class="secondary" onclick="totalDeudas()">💰 Ver total</button>
   <button class="danger" onclick="borrarTodo()">🗑 Borrar todo</button>
-  <button onclick="enviarResultados()">📤 Enviar resultados</button>
-  <button id="btnEnviar" onclick="enviarResultados()">
-  📤 Enviar resultados
-</button>
+  <button id="btnEnviar" class="bloqueado" disabled onclick="enviarResultados()">
+    📤 Enviar resultados (PRO)
+  </button>
 </div>
 
 <footer>
@@ -206,7 +130,56 @@ footer {
 <b>GUS GUS ESCALONA VALDEZ</b>
 </footer>
 
+</div>
+
 <script>
+// =====================
+// 🔐 CLAVES
+// =====================
+const CLAVE_ACCESO = "OP-2026-GUS";
+const CLAVE_PRO = "GUS-PRO-2026";
+
+// =====================
+// 🔐 ACCESO APP
+// =====================
+function activarAcceso() {
+  const clave = document.getElementById("claveLicencia").value.trim();
+
+  if (clave === CLAVE_ACCESO) {
+    localStorage.setItem("accesoOK", "true");
+    document.getElementById("licenciaBox").style.display = "none";
+    document.getElementById("app").style.display = "block";
+  } else {
+    alert("❌ Clave incorrecta");
+  }
+}
+
+// =====================
+// 🚀 LICENCIA PRO
+// =====================
+function activarPRO() {
+  const clave = prompt("Ingresa tu licencia PRO");
+
+  if (clave === CLAVE_PRO) {
+    localStorage.setItem("proOK", "true");
+    aplicarModoPro();
+    alert("✅ Licencia PRO activada");
+  } else {
+    alert("❌ Licencia PRO inválida");
+  }
+}
+
+function aplicarModoPro() {
+  const btn = document.getElementById("btnEnviar");
+  if (localStorage.getItem("proOK") === "true") {
+    btn.disabled = false;
+    btn.classList.remove("bloqueado");
+  }
+}
+
+// =====================
+// 📊 CONTABILIDAD
+// =====================
 let deudas = JSON.parse(localStorage.getItem("deudas")) || [];
 mostrarDeudas();
 
@@ -254,8 +227,8 @@ function borrarTodo() {
 }
 
 function enviarResultados() {
-  if (deudas.length === 0) {
-    alert("No hay deudas para enviar");
+  if (localStorage.getItem("proOK") !== "true") {
+    activarPRO();
     return;
   }
 
@@ -270,69 +243,20 @@ function enviarResultados() {
   mensaje += `\n💰 TOTAL: $${total.toFixed(2)}`;
   mensaje += `\n\n📌 GUS GUS ESCALONA VALDEZ`;
 
-  const url = "https://wa.me/?text=" + encodeURIComponent(mensaje);
-  window.open(url, "_blank");
+  window.open("https://wa.me/?text=" + encodeURIComponent(mensaje), "_blank");
 }
-</script>
-  <script>
-  const CLAVE_CORRECTA = "OP-2026-GUS";
 
+// =====================
+// 🔁 AUTO-INICIO
+// =====================
 window.onload = () => {
-  if (localStorage.getItem("licencia") === "activa") {
+  if (localStorage.getItem("accesoOK") === "true") {
     document.getElementById("licenciaBox").style.display = "none";
     document.getElementById("app").style.display = "block";
   }
+  aplicarModoPro();
 };
-
-function activarLicencia() {
-  const clave = document.getElementById("claveLicencia").value.trim();
-
-  if (clave === CLAVE_CORRECTA) {
-    localStorage.setItem("licencia", "activa");
-    alert("✅ Licencia activada");
-    document.getElementById("licenciaBox").style.display = "none";
-    document.getElementById("app").style.display = "block";
-  } else {
-    alert("❌ Clave incorrecta");
-  }
-}
-</script>
-<script>
-  let licenciaActiva = localStorage.getItem("licenciaPRO") === "true";
-
-function activarLicencia() {
-  const clave = document.getElementById("licencia").value.trim();
-  const estado = document.getElementById("estadoLicencia");
-
-  // CLAVE PRO (puedes cambiarla)
-  if (clave === "GUS-PRO-2025") {
-    licenciaActiva = true;
-    localStorage.setItem("licenciaPRO", "true");
-    estado.innerHTML = "✅ Licencia PRO activada";
-    estado.style.color = "green";
-    aplicarModoPro();
-  } else {
-    estado.innerHTML = "❌ Licencia inválida";
-    estado.style.color = "red";
-  }
-}
-
-function aplicarModoPro() {
-  const btnEnviar = document.getElementById("btnEnviar");
-  if (!btnEnviar) return;
-
-  if (licenciaActiva) {
-    btnEnviar.classList.remove("bloqueado");
-    btnEnviar.disabled = false;
-  } else {
-    btnEnviar.classList.add("bloqueado");
-    btnEnviar.disabled = true;
-  }
-}
-
-window.onload = aplicarModoPro;
 </script>
 
-</driv>
 </body>
 </html>
