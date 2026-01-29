@@ -251,10 +251,11 @@ function borrarTodo() {
 }
 
 function enviarResultados() {
-  if (localStorage.getItem("proOK") !== "true") {
+  if (!licenciaProActiva()) {
     activarPRO();
     return;
   }
+  
 
   let mensaje = "📊 CONTABILIDAD OP\n\n";
   let total = 0;
